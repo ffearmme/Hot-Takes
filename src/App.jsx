@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
+  Gavel, 
   Flame, 
   User, 
   Plus, 
@@ -166,7 +167,7 @@ function TutorialOverlay({ user, onComplete, onUpdate }) {
     {
       title: "WELCOME TO THE ARENA",
       content: "This is where the heat lives. Ready to start your legacy?",
-      icon: <Flame size={48} color="var(--accent-neon)" />
+      icon: <div className="verdict-gavel-container"><Gavel size={48} className="gavel-glow" /></div>
     },
     {
       title: "CHOOSE YOUR LOOK",
@@ -175,7 +176,7 @@ function TutorialOverlay({ user, onComplete, onUpdate }) {
     },
     {
       title: "IGNITE DEBATES",
-      content: "Use the + button to post your hottest takes. If someone challenges you, be ready to defend your ground in the live arena.",
+      content: "Use the + button to post your strongest verdict. If someone challenges you, be ready to defend your ground in the live arena.",
       icon: <Sword size={48} color="var(--accent-cyan)" />
     },
     {
@@ -860,6 +861,8 @@ function RulesModal({ onClose }) {
     { title: "KEEP IT RELEVANT", desc: "Posts should be real topics meant for discussion and debate.", icon: <Zap size={16} /> },
     { title: "NO IMPERSONATION", desc: "Don’t pretend to be another person, brand, or public figure.", icon: <User size={16} /> },
     { title: "KEEP IT LEGAL & SAFE", desc: "No content promoting violence, illegal activity, or harmful behavior.", icon: <CheckCircle size={16} /> },
+    { title: "NO EXPLICIT CONTENT", desc: "Keep the arena clean. No NSFW, sexually explicit, or extremely graphic material.", icon: <Heart size={16} /> },
+    { title: "NO PERSONAL VENDETTAS", desc: "Debate the issues, not your personal drama. Keep private disputes off the feed.", icon: <User size={16} /> },
     { title: "NO VOTE MANIPULATION", desc: "Don’t use alt accounts or coordinate to influence outcomes.", icon: <Activity size={16} /> }
   ];
 
@@ -2089,7 +2092,7 @@ function App() {
           animate={{ opacity: 1, scale: 1 }}
           style={{textAlign: 'center', padding: '3rem'}}
         >
-          <div className="logo" style={{fontSize: '2rem', marginBottom: '1.5rem'}}>HOT<span>TAKES</span></div>
+          <div className="logo" style={{fontSize: '2rem', marginBottom: '1.5rem'}}>FINAL<span>VERDICT</span></div>
           <div style={{background: 'rgba(255, 68, 68, 0.1)', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255, 68, 68, 0.2)'}}>
             <Shield size={48} color="#ff4444" style={{marginBottom: '1rem', display: 'block', margin: '0 auto 1.5rem'}} />
             <h2 style={{fontFamily: 'var(--font-heading)', fontSize: '1.5rem', marginBottom: '1rem'}}>ACCOUNT SUSPENDED</h2>
@@ -2117,7 +2120,7 @@ function App() {
           animate={{ opacity: 1, scale: 1 }}
           style={{textAlign: 'center', padding: '3rem'}}
         >
-          <div className="logo" style={{fontSize: '2rem', marginBottom: '1.5rem'}}>HOT<span>TAKES</span></div>
+          <div className="logo" style={{fontSize: '2rem', marginBottom: '1.5rem'}}>FINAL<span>VERDICT</span></div>
           <div style={{background: 'rgba(255,255,255,0.05)', padding: '2rem', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)'}}>
             <Mail size={48} color="var(--accent-cyan)" style={{marginBottom: '1rem', display: 'block', margin: '0 auto 1.5rem'}} />
             <h2 style={{fontFamily: 'var(--font-heading)', fontSize: '1.5rem', marginBottom: '1rem'}}>VERIFY YOUR EMAIL</h2>
@@ -2163,7 +2166,7 @@ function App() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <div className="logo" style={{fontSize: '2.5rem', marginBottom: '1rem'}}>HOT<span>TAKES</span></div>
+          <div className="logo" style={{fontSize: '2.5rem', marginBottom: '1rem'}}>FINAL<span>VERDICT</span></div>
           <p style={{opacity: 0.6, marginBottom: '2.5rem', textAlign: 'center'}}>Controversial takes. Live matches. Crowd sourced truth.</p>
           
           <form onSubmit={(e) => { 
@@ -2231,7 +2234,7 @@ function App() {
                   <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }}>
                     <Zap size={20} />
                   </motion.div>
-                  <span>{authMode === 'login' ? 'CONNECTING...' : 'IGNITING...'}</span>
+                  <span>{authMode === 'login' ? 'CONNECTING...' : 'SEALING...'}</span>
                 </div>
               ) : (authMode === 'login' ? 'ENTER THE ARENA' : 'START YOUR LEGACY')}
             </button>
@@ -2276,7 +2279,7 @@ function App() {
           </form>
           
           <div style={{marginTop: '2rem', display: 'flex', justifyContent: 'center', gap: '2rem', opacity: 0.4}}>
-            <Flame size={20} />
+            <Gavel size={20} />
             <TrendingUp size={20} />
             <Sword size={20} />
           </div>
@@ -2288,7 +2291,7 @@ function App() {
   return (
     <div className="app-container">
       <header className="header glass-morphism">
-        <div className="logo" onClick={() => setView('explore')} style={{cursor: 'pointer'}}>HOT<span>TAKES</span></div>
+        <div className="logo" onClick={() => setView('explore')} style={{cursor: 'pointer'}}>FINAL<span>VERDICT</span></div>
         <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
            {isAdmin && (
              <button 
@@ -2308,8 +2311,19 @@ function App() {
                <Settings size={18} />
              </button>
            )}
-           <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 3 }} style={{marginLeft: '4px'}}>
-             <Flame color="var(--accent-neon)" size={26} />
+           <motion.div 
+             className="verdict-gavel-container"
+             animate={{ 
+               rotate: [0, -15, 10, 0],
+               scale: [1, 1.05, 1] 
+             }} 
+             transition={{ 
+               repeat: Infinity, 
+               duration: 6, 
+               ease: "easeInOut" 
+             }}
+           >
+             <Gavel className="gavel-glow" color="var(--accent-neon)" size={22} strokeWidth={2.5} />
            </motion.div>
         </div>
       </header>
