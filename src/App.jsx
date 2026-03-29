@@ -759,6 +759,78 @@ function ResultCard({ take, userMap, onChallenge, onUserClick }) {
     </motion.div>
   );
 }
+function ReputationDocsModal({ onClose }) {
+  return (
+    <motion.div 
+      className="overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      style={{ zIndex: 10000, padding: '1.5rem', background: 'rgba(0,0,0,0.9)' }}
+    >
+      <motion.div 
+        className="modal glass-morphism"
+        initial={{ y: '20px', scale: 0.95 }}
+        animate={{ y: 0, scale: 1 }}
+        exit={{ y: '20px', scale: 0.95 }}
+        onClick={e => e.stopPropagation()}
+        style={{ padding: '2.5rem 1.5rem', maxWidth: '400px', width: '100%', borderRadius: '24px' }}
+      >
+        <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.5rem', marginBottom: '1.5rem' }}>REPUTATION <span className="glow-text">SYSTEM</span></h2>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', textAlign: 'left' }}>
+           <div className="rep-rule">
+              <div className="rep-icon" style={{ background: 'rgba(0, 255, 255, 0.1)', color: 'var(--accent-cyan)' }}><Zap size={14} /></div>
+              <div>
+                 <div style={{ fontWeight: 900, fontSize: '0.8rem', letterSpacing: '0.05em' }}>STARTING GEAR</div>
+                 <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '2px' }}>Every warrior starts with 1,500 Reputation points.</div>
+              </div>
+           </div>
+
+           <div className="rep-rule">
+              <div className="rep-icon" style={{ background: 'rgba(255, 0, 255, 0.1)', color: 'var(--accent-neon)' }}><Sword size={14} /></div>
+              <div>
+                 <div style={{ fontWeight: 900, fontSize: '0.8rem', letterSpacing: '0.05em' }}>ARENA REWARDS</div>
+                 <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '2px' }}>+100 for a Crowd Victory. +25 just for stepping into the Arena.</div>
+              </div>
+           </div>
+
+           <div className="rep-rule">
+              <div className="rep-icon" style={{ background: 'rgba(255, 68, 68, 0.1)', color: '#ff4444' }}><Flag size={14} /></div>
+              <div>
+                 <div style={{ fontWeight: 900, fontSize: '0.8rem', letterSpacing: '0.05em' }}>DEFEAT & SURRENDER</div>
+                 <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '2px' }}>-50 for a Crowd Defeat. -30 for Surrendering.</div>
+              </div>
+           </div>
+
+           <div className="rep-rule">
+              <div className="rep-icon" style={{ background: 'rgba(255, 243, 0, 0.1)', color: 'var(--accent-yellow)' }}><Heart size={14} /></div>
+              <div>
+                 <div style={{ fontWeight: 900, fontSize: '0.8rem', letterSpacing: '0.05em' }}>SENTIMENT</div>
+                 <div style={{ fontSize: '0.75rem', opacity: 0.6, marginTop: '2px' }}>+5 Reputation for every Heart received on your takes.</div>
+              </div>
+           </div>
+        </div>
+
+        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+           <div style={{ fontSize: '0.6rem', fontWeight: 900, opacity: 0.4, marginBottom: '1rem', letterSpacing: '0.1em' }}>HIERARCHY</div>
+           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', fontWeight: 800 }}>
+              <span className="rank-novice">NOVICE (0+)</span>
+              <span className="rank-contender">CONTENDER (1K+)</span>
+              <span className="rank-elite">ELITE (2.5K+)</span>
+              <span className="rank-legend">LEGEND (5K+)</span>
+           </div>
+        </div>
+
+        <button className="primary-btn" onClick={onClose} style={{ width: '100%', marginTop: '2.5rem', height: '52px', borderRadius: '14px' }}>
+           GOT IT
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function AddTakeModal({ isOpen, onClose, onAdd }) {
   const [takeText, setTakeText] = useState('')
   const [category, setCategory] = useState('General')
@@ -1247,6 +1319,7 @@ function App() {
   const [activeDebate, setActiveDebate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHallOfFameOpen, setIsHallOfFameOpen] = useState(false);
+  const [isRepModalOpen, setIsRepModalOpen] = useState(false);
   const [confirmingChallenge, setConfirmingChallenge] = useState(null);
   const [confirmingSurrender, setConfirmingSurrender] = useState(null);
   const [confirmingTruce, setConfirmingTruce] = useState(null);
@@ -2190,9 +2263,16 @@ function App() {
                             <div className={rank.class} style={{ fontSize: '1.1rem', fontWeight: 900 }}>{rank.name}</div>
                          </div>
                          <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.4, letterSpacing: '0.1em' }}>REPUTATION</div>
-                            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: rank.color }}>{userData?.reputation}</div>
-                         </div>
+                             <div style={{ fontSize: '0.7rem', fontWeight: 900, opacity: 0.4, letterSpacing: '0.1em', display: 'flex', alignItems: 'center', gap: '4px', justifyContent: 'flex-end' }}>
+                                REPUTATION
+                             </div>
+                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 900, color: rank.color }}>{userData?.reputation}</div>
+                                <button className="how-it-works-btn" onClick={() => setIsRepModalOpen(true)}>
+                                   <Shield size={10} /> HELP
+                                </button>
+                             </div>
+                          </div>
                       </div>
                       
                       <div className="reputation-progress">
@@ -2296,6 +2376,12 @@ function App() {
             onComplete={() => setUserData({ ...userData, hasSeenTutorial: true })} 
             onUpdate={setUserData}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isRepModalOpen && (
+          <ReputationDocsModal onClose={() => setIsRepModalOpen(false)} />
         )}
       </AnimatePresence>
 
