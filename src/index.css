@@ -1415,6 +1415,26 @@ body {
   border-color: rgba(255,255,255,0.2);
 }
 
+.rules-link {
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-size: 0.65rem;
+  font-weight: 900;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: none;
+  opacity: 0.6;
+  transition: 0.3s;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.rules-link:hover {
+  opacity: 1;
+  text-shadow: 0 0 10px var(--accent-cyan);
+}
+
 .reputation-progress {
   height: 6px;
   background: rgba(255,255,255,0.05);

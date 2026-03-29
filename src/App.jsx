@@ -27,7 +27,8 @@ import {
   PlayCircle,
   Flag,
   Handshake,
-  Heart
+  Heart,
+  Lock
 } from 'lucide-react'
 import { auth, db } from './firebase'
 import { 
@@ -45,6 +46,7 @@ import {
   addDoc, 
   query, 
   orderBy, 
+  where,
   onSnapshot, 
   doc, 
   setDoc, 
@@ -180,6 +182,11 @@ function TutorialOverlay({ user, onComplete, onUpdate }) {
       title: "THE CROWD DECIDES",
       content: "Vote on other takes to balance the scales. High reputation leads to higher status in the community.",
       icon: <Activity size={48} color="var(--accent-purple)" />
+    },
+    {
+      title: "ARENA COMMANDMENTS",
+      content: "To maintain the integrity of our battles, you must agree to follow our code of conduct.",
+      isRulesStep: true
     }
   ];
 
@@ -197,12 +204,6 @@ function TutorialOverlay({ user, onComplete, onUpdate }) {
     if (step > 0) setStep(step - 1);
   };
 
-  const skipTutorial = async () => {
-    const userRef = doc(db, "users", user.uid);
-    await updateDoc(userRef, { hasSeenTutorial: true });
-    onComplete();
-  };
-
   return (
     <motion.div className="overlay tutorial-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <motion.div 
@@ -214,7 +215,6 @@ function TutorialOverlay({ user, onComplete, onUpdate }) {
           {step > 0 ? (
             <button className="back-btn" onClick={handleBack}><ChevronLeft size={20} /></button>
           ) : <div />}
-          <button className="skip-link" onClick={skipTutorial}>SKIP</button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -247,12 +247,32 @@ function TutorialOverlay({ user, onComplete, onUpdate }) {
                 </div>
               </div>
             )}
+
+            {steps[step].isRulesStep && (
+               <div className="tutorial-rules-list glass-morphism" style={{ marginTop: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '24px', padding: '1.5rem', textAlign: 'left', maxHeight: '30vh', overflowY: 'auto' }}>
+                  {[
+                    "Debate ideas, NOT people.",
+                    "No hate, slurs, or harassment.",
+                    "No spam or low-effort bait.",
+                    "No doxxing or personal info.",
+                    "Keep it relevant and real.",
+                    "No impersonation.",
+                    "Keep it legal and safe.",
+                    "No vote manipulation."
+                  ].map((r, i) => (
+                    <div key={i} style={{ display: 'flex', gap: '10px', marginBottom: '10px', fontSize: '0.75rem', fontWeight: 600 }}>
+                       <CheckCircle size={14} color="var(--accent-cyan)" />
+                       <span style={{ opacity: 0.8 }}>{r}</span>
+                    </div>
+                  ))}
+               </div>
+            )}
           </motion.div>
         </AnimatePresence>
 
         <div className="tutorial-footer">
           <button className="primary-btn tutorial-next-btn" onClick={handleNext}>
-            {step === steps.length - 1 ? 'ENTER THE ARENA' : 'CONTINUE'}
+            {step === steps.length - 1 ? 'I AGREE & ENTER ARENA' : 'CONTINUE'}
           </button>
           
           <div className="step-dots">
@@ -831,7 +851,64 @@ function ReputationDocsModal({ onClose }) {
   );
 }
 
-function AddTakeModal({ isOpen, onClose, onAdd }) {
+function RulesModal({ onClose }) {
+  const rules = [
+    { title: "DEBATE IDEAS, NOT PEOPLE", desc: "Disagree freely, but don’t insult, attack, or target others.", icon: <Sword size={16} /> },
+    { title: "NO HATE OR HARASSMENT", desc: "No slurs, threats, bullying, or targeted insults toward individuals or groups.", icon: <Shield size={16} /> },
+    { title: "NO SPAM OR FLOODING", desc: "Don’t post repetitive content, ads, or low-effort bait.", icon: <Flag size={16} /> },
+    { title: "NO DOXXING", desc: "Never share private or identifying information about anyone.", icon: <Lock size={16} /> },
+    { title: "KEEP IT RELEVANT", desc: "Posts should be real topics meant for discussion and debate.", icon: <Zap size={16} /> },
+    { title: "NO IMPERSONATION", desc: "Don’t pretend to be another person, brand, or public figure.", icon: <User size={16} /> },
+    { title: "KEEP IT LEGAL & SAFE", desc: "No content promoting violence, illegal activity, or harmful behavior.", icon: <CheckCircle size={16} /> },
+    { title: "NO VOTE MANIPULATION", desc: "Don’t use alt accounts or coordinate to influence outcomes.", icon: <Activity size={16} /> }
+  ];
+
+  return (
+    <motion.div 
+      className="overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+      style={{ zIndex: 11000, padding: '1.5rem', background: 'rgba(5,2,12,0.95)' }}
+    >
+      <motion.div 
+        className="modal glass-morphism"
+        initial={{ y: '20px', scale: 0.95 }}
+        animate={{ y: 0, scale: 1 }}
+        exit={{ y: '20px', scale: 0.95 }}
+        onClick={e => e.stopPropagation()}
+        style={{ padding: '2.5rem 1.5rem', maxWidth: '450px', width: '100%', borderRadius: '28px', maxHeight: '90vh', overflowY: 'auto' }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <Shield size={40} color="var(--accent-neon)" style={{ marginBottom: '1rem', filter: 'drop-shadow(0 0 10px var(--accent-neon))' }} />
+          <h2 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.8rem' }}>COMMUNITY <span className="glow-text">RULES</span></h2>
+          <p style={{ opacity: 0.5, fontSize: '0.8rem', marginTop: '0.5rem' }}>Respect the Arena. Respect the Fight.</p>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+           {rules.map((rule, i) => (
+              <div key={i} className="rep-rule" style={{ background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                 <div className="rep-icon" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--accent-cyan)' }}>
+                    {rule.icon}
+                 </div>
+                 <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 900, fontSize: '0.75rem', letterSpacing: '0.05em', color: 'white' }}>{rule.title}</div>
+                    <div style={{ fontSize: '0.7rem', opacity: 0.8, color: 'rgba(255,255,255,0.7)', marginTop: '4px', lineHeight: '1.4' }}>{rule.desc}</div>
+                 </div>
+              </div>
+           ))}
+        </div>
+
+        <button className="primary-btn" onClick={onClose} style={{ width: '100%', marginTop: '2.5rem', height: '56px', borderRadius: '16px' }}>
+           I UNDERSTAND
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function AddTakeModal({ isOpen, onClose, onAdd, onOpenRules }) {
   const [takeText, setTakeText] = useState('')
   const [category, setCategory] = useState('General')
   const categories = ['General', 'Food', 'Tech', 'Culture', 'Politics', 'Gaming']
@@ -895,6 +972,29 @@ function AddTakeModal({ isOpen, onClose, onAdd }) {
                 {takeText.length} / 140
               </div>
               
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.25rem', marginBottom: '-0.75rem' }}>
+                <button 
+                  type="button" 
+                  className="rules-link" 
+                  onClick={onOpenRules}
+                  style={{
+                    background: 'rgba(0,255,255,0.1)',
+                    padding: '10px 20px',
+                    borderRadius: '20px',
+                    border: '1px solid rgba(0,255,255,0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '0.65rem',
+                    fontWeight: 900,
+                    color: 'var(--accent-cyan)',
+                    boxShadow: '0 0 15px rgba(0,255,255,0.1)'
+                  }}
+                >
+                  <Shield size={14} /> READ THE RULES
+                </button>
+              </div>
+
               <motion.button 
                 className="primary-btn" 
                 style={{ width: '100%', marginTop: '2.5rem', height: '64px'}} 
@@ -1146,13 +1246,13 @@ function DeleteConfirmButton({ takeId, onDelete }) {
 }
 
 
-function AdminDashboard({ takes, reports, userMap, onDismissReport, onDeleteTake, onFeatureTake, onBanUser, setView }) {
+function AdminDashboard({ takes, reports, stats: adminStats, userMap, onDismissReport, onDeleteTake, onFeatureTake, onBanUser, setView }) {
   const stats = {
-    totalTakes: takes.length,
-    activeDebates: takes.filter(t => t.challenger && !t.isConcluded).length,
-    concludedDebates: takes.filter(t => t.isConcluded).length,
-    totalUsers: Object.keys(userMap).length,
-    totalReports: reports.length
+    totalTakes: adminStats.totalTakes,
+    activeDebates: adminStats.activeFights,
+    concludedDebates: adminStats.totalTakes - adminStats.activeFights, // Approximate concluded
+    totalUsers: adminStats.totalUsers,
+    totalReports: adminStats.reports
   };
 
   return (
@@ -1313,13 +1413,21 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [view, setView] = useState('explore');
   const [feedLimit, setFeedLimit] = useState(50); // Pagination state
+  const [userTotalTakes, setUserTotalTakes] = useState(0); // Personal total takes
   const isAdmin = user?.email === 'ffearmme@gmail.com';
   const [userMap, setUserMap] = useState({});
+  const [adminStats, setAdminStats] = useState({
+    totalUsers: 0,
+    totalTakes: 0,
+    activeFights: 0,
+    reports: 0
+  });
   const [reports, setReports] = useState([]);
   const [activeDebate, setActiveDebate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHallOfFameOpen, setIsHallOfFameOpen] = useState(false);
   const [isRepModalOpen, setIsRepModalOpen] = useState(false);
+  const [isRulesModalOpen, setIsRulesModalOpen] = useState(false);
   const [confirmingChallenge, setConfirmingChallenge] = useState(null);
   const [confirmingSurrender, setConfirmingSurrender] = useState(null);
   const [confirmingTruce, setConfirmingTruce] = useState(null);
@@ -1335,6 +1443,7 @@ function App() {
   // Global Users Listener
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+      setAdminStats(prev => ({ ...prev, totalUsers: snapshot.size }));
       const usersProfileMap = {};
       snapshot.docs.forEach(d => {
         const data = d.data();
@@ -1344,6 +1453,34 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Global Admin Metrics Listener (Takes & Active Fights)
+  useEffect(() => {
+    if (!isAdmin) return;
+    
+    // Total Takes & Active Fights (No limit for admin stats)
+    const unsubscribe = onSnapshot(collection(db, "takes"), (snapshot) => {
+      const allTakes = snapshot.docs.map(d => d.data());
+      const activeFights = allTakes.filter(t => t.challenger && !t.isConcluded).length;
+      setAdminStats(prev => ({ 
+        ...prev, 
+        totalTakes: snapshot.size,
+        activeFights: activeFights
+      }));
+    });
+    
+    return () => unsubscribe();
+  }, [isAdmin]);
+
+  // Personal Take Count Listener
+  useEffect(() => {
+    if (!user || !userData) return;
+    const q = query(collection(db, "takes"), where("user", "==", userData.username));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUserTotalTakes(snapshot.size);
+    });
+    return () => unsubscribe();
+  }, [user, userData?.username]);
 
   // Auth Listener
   useEffect(() => {
@@ -1438,6 +1575,7 @@ function App() {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const feed = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setReports(feed);
+      setAdminStats(prev => ({ ...prev, reports: snapshot.size }));
     });
     return () => unsubscribe();
   }, [isAdmin]);
@@ -2292,7 +2430,7 @@ function App() {
                   <div style={{marginTop: '2.5rem', display: 'flex', justifyContent: 'center', gap: '2rem'}}>
                      <div>
                         <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-cyan)' }}>
-                           {takes.filter(t => t.user === userData.username).length}
+                           {userTotalTakes}
                         </div>
                         <div style={{ fontSize: '0.6rem', opacity: 0.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>TOTAL TAKES</div>
                      </div>
@@ -2317,6 +2455,7 @@ function App() {
             <AdminDashboard 
               takes={takes} 
               reports={reports} 
+              stats={adminStats}
               userMap={userMap} 
               onDismissReport={handleDismissReport} 
               onDeleteTake={handleDeleteTake} 
@@ -2385,7 +2524,7 @@ function App() {
         )}
       </AnimatePresence>
 
-      <AddTakeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddTake} />
+      <AddTakeModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddTake} onOpenRules={() => setIsRulesModalOpen(true)} />
 
       <HallOfFameModal 
         isOpen={isHallOfFameOpen} 
@@ -2424,12 +2563,19 @@ function App() {
         onConfirm={executeDeleteAccount} 
       />
 
+      <AnimatePresence>
+        {isRulesModalOpen && (
+          <RulesModal onClose={() => setIsRulesModalOpen(false)} />
+        )}
+      </AnimatePresence>
+
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
         user={userData} 
         onUpdate={setUserData}
         onDeleteAccount={handleDeleteAccount}
+        onOpenRules={() => setIsRulesModalOpen(true)}
       />
 
       <UserPreviewModal 
@@ -2441,7 +2587,7 @@ function App() {
   )
 }
 
-function SettingsModal({ isOpen, onClose, user, onUpdate, onDeleteAccount }) {
+function SettingsModal({ isOpen, onClose, user, onUpdate, onDeleteAccount, onOpenRules }) {
   const [currentSeed, setCurrentSeed] = useState(user?.username || '');
   const [editedName, setEditedName] = useState(user?.username || '');
   const [isSaving, setIsSaving] = useState(false);
@@ -2536,6 +2682,37 @@ function SettingsModal({ isOpen, onClose, user, onUpdate, onDeleteAccount }) {
                    <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}><Mail size={20} color="var(--accent-neon)" /><span>Email</span></div>
                    <span style={{opacity: 0.5, fontSize: '0.9rem'}}>{auth.currentUser?.email || `${(user?.username || '').toLowerCase()}@takes.live`}</span>
                 </div>
+              </div>
+
+              <div className="settings-section" style={{marginTop: '2rem'}}>
+                <label style={{fontSize: '0.7rem', fontWeight: 900, opacity: 0.4, textTransform: 'uppercase', letterSpacing: '0.1em', marginLeft: '1rem'}}>Arena Standards</label>
+                <button 
+                  className="settings-item" 
+                  onClick={onOpenRules} 
+                  style={{
+                    marginTop: '0.6rem', width: '100%', 
+                    background: 'linear-gradient(90deg, rgba(0,255,140,0.05), rgba(0,255,255,0.05))',
+                    border: '1px solid rgba(0,255,255,0.2)',
+                    padding: '20px', borderRadius: '16px',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    cursor: 'pointer', boxSshadow: '0 4px 15px rgba(0,0,0,0.2)'
+                  }}
+                >
+                   <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+                      <div style={{
+                        width: '36px', height: '36px', borderRadius: '10px', 
+                        background: 'rgba(0,255,255,0.1)', display: 'flex', 
+                        alignItems: 'center', justifyContent: 'center'
+                      }}>
+                        <Shield size={20} color="var(--accent-cyan)" />
+                      </div>
+                      <div style={{textAlign: 'left'}}>
+                         <div style={{fontWeight: 900, fontSize: '0.95rem', color: 'white'}}>COMMUNITY RULES</div>
+                         <div style={{fontSize: '0.65rem', opacity: 0.8, color: 'var(--accent-cyan)', fontWeight: 800, letterSpacing: '0.05em'}}>BE RESPECTFUL. STAY LEGENDARY.</div>
+                      </div>
+                   </div>
+                   <ChevronLeft size={20} style={{transform: 'rotate(180deg)', color: 'var(--accent-cyan)'}} />
+                </button>
               </div>
 
               <div className="settings-section" style={{marginTop: '2rem'}}>
